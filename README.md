@@ -10,10 +10,11 @@ It currently supports:
 *   macOS Runners with Homebrew-installed PostreSQL 14-18
 *   Windows Runners with Chocolatey-installed PostreSQL 10-18[^win-pgxs]
 
-In addition, each provies the [pgxn client] to simplify installing additional
+In addition, each provides the [pgxn client] to simplify installing additional
 extension from [PGXN]. The Windows images also adds `sudo` to minimize
 differences in the commands required to install extension on each OS.
 
+We recommend also using [pgxn-matrix-action] to generate the test matrix.
 Example workflow:
 
 ``` yaml
@@ -23,33 +24,34 @@ on:
 defaults:
   run: { shell: bash }
 jobs:
+  matrix:
+    # Use pgxn/matrix-action to generate OS/arch/Postgres version matrix.
+    name: 📋 Generate Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Generate Matrix
+        id: matrix
+        uses: pgxn/matrix-action@v0
+        with:
+          min-version: 12
+          beta: true
+          no-os: windows
   test:
+    name: ${{ matrix.pg.emoji }} ${{ matrix.pg.os }}/${{ matrix.pg.arch }} 🐘 v${{ matrix.pg.version }}
+    needs: matrix
+    runs-on: ${{ matrix.pg.runner }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - { img: 🐧, os: Ubuntu,  vm: latest,    arch: amd64, pg: 19 }
-          - { img: 🐧, os: Ubuntu,  vm: latest,    arch: amd64, pg: 18 }
-          - { img: 🐧, os: Ubuntu,  vm: latest,    arch: amd64, pg: 17 }
-          - { img: 🐧, os: Ubuntu,  vm: 26.04-arm, arch: arm64, pg: 19 }
-          - { img: 🐧, os: Ubuntu,  vm: 26.04-arm, arch: arm64, pg: 18 }
-          - { img: 🐧, os: Ubuntu,  vm: 26.04-arm, arch: arm64, pg: 17 }
-          - { img: 🍎, os: macOS,   vm: latest,    arch: arm64, pg: 18 }
-          - { img: 🍎, os: macOS,   vm: latest,    arch: arm64, pg: 17 }
-          - { img: 🍎, os: macOS,   vm: 26-intel,  arch: amd64, pg: 18 }
-          - { img: 🍎, os: macOS,   vm: 26-intel,  arch: amd64, pg: 17 }
-          - { img: 🪟, os: Windows, vm: latest,    arch: amd64, pg: 18 }
-          - { img: 🪟, os: Windows, vm: latest,    arch: amd64, pg: 17 }
-          - { img: 🪟, os: Windows, vm: 11-arm,    arch: arm64, pg: 18 }
-          - { img: 🪟, os: Windows, vm: 11-arm,    arch: arm64, pg: 17 }
-    name: ${{ matrix.img }} ${{ matrix.arch }} 🐘 ${{ matrix.pg }}
-    runs-on: ${{ matrix.os }}-${{ matrix.vm }}
+        pg: ${{ fromJson(needs.matrix.outputs.matrix) }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v7
-      - name: Start Postgres ${{ matrix.pg }}
+      - name: Start Postgres ${{ matrix.pg.version }}
         uses: pgxn/postgres-action@v0
-        with: { version: "${{ matrix.pg }}" }
+        with: { version: "${{ matrix.pg.version }}" }
       - name: Build
         run:  make
       - name: Install
@@ -121,6 +123,9 @@ full, often version-specific path.
   [Homebrew Formulae]: https://formulae.brew.sh
   [Chocolatey Packages]: https://community.chocolatey.org/packages/
   [pgxn client]: https://pgxn.github.io/pgxnclient/
+  [PGXN]: https://pgxn.org/ "PostgreSQL Extension Network"
+  [pgxn-matrix-action]: https://github.com/pgxn/matrix-action/
+    "Generate a matrix of Postgres versions on Workflow OSes and architectures"
   [pgxn-tools]: https://github.com/pgxn/docker-pgxn-tools/ "Test image for PostgreSQL & PGXN extensions"
   [petere/pguint]: https://github.com/petere/pguint/commit/bcc3335
     "petere/pguint@bcc3335 Convert CI from Cirrus to GitHub Actions"

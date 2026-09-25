@@ -9,17 +9,17 @@ inputs:
   version:
     description: Major Postgres version to install
     required: true
-    default: 19
+    default: "19"
   port:
     description: The Postgres server port for Postgres
-    default: 55432
+    default: "55432"
     required: false
   packages:
     description: List of additional packages to install
     required: false
   start:
     description: Whether or not to start Postgres after installing
-    default: true
+    default: "true"
   encoding:
     description: The encoding to use for databases in the cluster
     required: false
