@@ -7,6 +7,22 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.1.1] — 2026-10-16
+
+The theme of this release is *No such file or directory.*
+
+### 🪲 Bug Fixes
+
+*   Fixed a bug where Postgres could fail to start because
+    `/etc/postgresql-common/createcluster.conf` was missing.
+
+### 📚 Documentation
+
+*   Added missing `install` after `sudo make` to the [README].
+
+  [v0.1.1]: https://github.com/pgxn/postgres-action/compare/v0.1.0...v0.1.1
+  [README]: README.md
+
 ## [v0.1.0] — 2026-09-16
 
 The theme of this release is *Simplify, simplify.*

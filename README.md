@@ -53,7 +53,7 @@ jobs:
       - name: Build
         run:  make
       - name: Install
-        run:  sudo make
+        run:  sudo make install
       - name: Test
         id:   test
         run:  make installcheck
