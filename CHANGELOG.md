@@ -7,6 +7,19 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.1.3] — 2026-10-18
+
+The theme of this release is *Welcome to the Matrix.*
+
+### ⚡ Improvements
+
+*   Switched to [pgxn/matrix-action] to generate the matrix of Postgres
+    versions to start in both the [README] and the test workflow.
+
+  [v0.1.3]: https://github.com/pgxn/postgres-action/compare/v0.1.2...v0.1.3
+  [pgxn/matrix-action]: https://github.org/pgxn/matrix-action
+  [README]: README.md
+
 ## [v0.1.2] — 2026-10-17
 
 The theme of this release is *Disable main.*
