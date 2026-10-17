@@ -7,6 +7,17 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.1.2] — 2026-10-17
+
+The theme of this release is *Disable main.*
+
+### ⚡ Improvements
+
+*   Disabled creation of the "main" database cluster, which which is not used,
+    saving a few seconds from the Postgres installation on Linux.
+
+  [v0.1.2]: https://github.com/pgxn/postgres-action/compare/v0.1.1...v0.1.2
+
 ## [v0.1.1] — 2026-10-16
 
 The theme of this release is *No such file or directory.*

@@ -39,8 +39,8 @@ runs:
           sudo apt-get update
           sudo apt-get -y purge postgresql-client-common
           sudo apt-get install -y postgresql-common ca-certificates build-essential pgxnclient ${{ inputs.packages }}
-          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -v ${{ inputs.version }} -i
           sudo sed -i 's/#create_main_cluster = true/create_main_cluster = false/' /etc/postgresql-common/createcluster.conf
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -i -v ${{ inputs.version }}
           if [ "${{ inputs.start }}" == 'true' ]; then
             sudo pg_createcluster --start ${{ inputs.version }} test -p ${{ inputs.port }} ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }} -- -A trust
           fi
