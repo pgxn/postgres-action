@@ -26,14 +26,21 @@ inputs:
   locale:
     description: The locale to use for databases in the cluster
     required: false
+  owner:
+    description: The user to own the cluster; defaults to current user
+    required: false
 
 runs:
   using: composite
   steps:
     - name: Install ${{ inputs.version }}
       shell: bash
+      env:
+        OWNER: ${{ inputs.owner }}
       run: |
         set -e
+        OWNER="${OWNER:-"$(whoami)"}"
+        export PGDATA="$RUNNER_TEMP/pgdata${{ inputs.version }}"
         case "$RUNNER_OS" in
         Linux)
           sudo apt-get update
@@ -41,11 +48,12 @@ runs:
           sudo apt-get install -y postgresql-common ca-certificates build-essential pgxnclient ${{ inputs.packages }}
           sudo sed -i 's/#create_main_cluster = true/create_main_cluster = false/' /etc/postgresql-common/createcluster.conf
           sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -i -v ${{ inputs.version }}
+          PG_BIN=/usr/lib/postgresql/${{ inputs.version }}/bin
           if [ "${{ inputs.start }}" == 'true' ]; then
-            sudo pg_createcluster --start ${{ inputs.version }} test -p ${{ inputs.port }} ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }} -- -A trust
+            sudo pg_createcluster -u "$OWNER" --start ${{ inputs.version }} test -p ${{ inputs.port }} ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }} -- -A trust -d
           fi
-          printf '/usr/lib/postgresql/${{ inputs.version }}/bin\n' >> "$GITHUB_PATH"
-          printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=/usr/lib/postgresql/${{ inputs.version }}/bin/pg_config' >> "$GITHUB_ENV"
+          printf '%s\n' "$PG_BIN" >> "$GITHUB_PATH"
+          printf 'PGPORT=${{ inputs.port }}\nPGUSER=%s\nPG_CONFIG=%s/pg_config' "$OWNER" "$PG_BIN" >> "$GITHUB_ENV"
           ;;
 
         macOS)
@@ -57,17 +65,18 @@ runs:
           brew install -y --quiet "postgresql@${{ inputs.version }}" pgxnclient ${{ inputs.packages }}
           brew unlink --quiet "postgresql@${{ inputs.version }}"
           brew link --quiet --overwrite "postgresql@${{ inputs.version }}"
-          export PGDATA="$RUNNER_TEMP/pgdata${{ inputs.version }}"
           if [ "${{ inputs.start }}" == 'true' ]; then
-            initdb -U postgres ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
+            initdb -U "$OWNER" ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
             printf 'port = ${{ inputs.port }}\n' >> "$PGDATA/postgresql.conf"
             pg_ctl start
           fi
-          printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/bin/pg_config\n' "$(brew --prefix)" >> "$GITHUB_ENV"
+          printf 'PGPORT=${{ inputs.port }}\nPGUSER=%s\nPG_CONFIG=%s/bin/pg_config\n' "$OWNER" "$(brew --prefix)" >> "$GITHUB_ENV"
           ;;
 
         Windows)
-          choco install sudo ${{ inputs.packages }}
+          if [ -n "${{ inputs.packages }}" ]; then
+            choco install ${{ inputs.packages }}
+          fi
           # Chocolatey downloads the PostgreSQL installer from
           # get.enterprisedb.com, which intermittently responds with HTTP 403
           # and aborts the install. Retry a few times to absorb such transient
@@ -89,16 +98,15 @@ runs:
           done
           pip install pgxnclient
 
-          PG_DIR="$PROGRAMFILES/PostgreSQL/${{ inputs.version }}"
-          export PGDATA="$RUNNER_TEMP/pgdata${{ inputs.version }}"
+          PG_BIN="$PROGRAMFILES/PostgreSQL/${{ inputs.version }}/bin"
           if [ "${{ inputs.start }}" == 'true' ]; then
-            "$PG_DIR/bin/initdb.exe" -U postgres ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
+            "$PG_BIN/initdb.exe" -U "$OWNER" ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
             printf 'port = ${{ inputs.port }}\n' >> "$PGDATA/postgresql.conf"
-            "$PG_DIR/bin/pg_ctl.exe" start
+            "$PG_BIN/pg_ctl.exe" start
           fi
 
-          printf '%s\n' "$PG_DIR/bin" >> $GITHUB_PATH
-          printf 'PGDATA=\nPGBIN=\nPGPASSWORD=\nPGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/bin/pg_config.exe\n' "$PG_DIR" >> "$GITHUB_ENV"
+          printf '%s\n' "$PG_BIN" >> $GITHUB_PATH
+          printf 'PGDATA=\nPGBIN=\nPGPASSWORD=\nPGPORT=${{ inputs.port }}\nPGUSER=%s\nPG_CONFIG=%s/pg_config.exe\n' "$OWNER" "$PG_BIN" >> "$GITHUB_ENV"
           ;;
 
         *)

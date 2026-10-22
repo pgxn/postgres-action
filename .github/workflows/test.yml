@@ -94,12 +94,14 @@ jobs:
           port: ${{ matrix.opt.port }}
           encoding: ${{ matrix.opt.encoding }}
           locale: ${{ matrix.opt.locale }}
+          owner: postgres
       - name: Check stuff
         run: |
           set -e
           psql -c "SELECT regexp_replace(version(), ',.+', '') AS version,
                           (SELECT setting FROM pg_catalog.pg_settings WHERE name = 'port') AS port,
                           current_setting('server_encoding') AS encoding,
+                          current_user,
                           (SELECT datcollate FROM pg_database WHERE datname = current_database()) AS locale"
           # Fail if values wrong.
           set -x
@@ -107,6 +109,7 @@ jobs:
           psql -c "SELECT setting FROM pg_catalog.pg_settings WHERE name = 'port'" | grep '${{ matrix.opt.port }}'
           psql -c "SELECT current_setting('server_encoding')" | grep '${{ matrix.opt.encoding }}'
           psql -c "SELECT datcollate FROM pg_database WHERE datname = current_database()" | grep '${{ matrix.opt.locale }}'
+          psql -c "SELECT current_user" | grep postgres
           pgxn --version # Always installed
           hugo version # Added by packages
 
