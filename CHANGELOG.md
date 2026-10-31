@@ -7,7 +7,9 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
-## [v0.2.0] — Unreleased
+## [v0.2.0] — 2026-10-31
+
+The theme of this release is *Ease of use.*
 
 ### ⚡ Improvements
 
@@ -15,6 +17,8 @@ All notable changes to this project will be documented in this file. It uses the
     "postgres".
 *   Added the `owner` input; set to "postgres" to restore cluster ownership to
     the "postgres" system user.
+*   Added the `config` input to append [server configuration] to
+    `postgresql.conf` before starting the server.
 
 ### 📚 Documentation
 
@@ -22,6 +26,8 @@ All notable changes to this project will be documented in this file. It uses the
 
   [v0.2.0]: https://github.com/pgxn/postgres-action/compare/v0.1.3...v0.2.0
   [README]: README.md
+  [server configuration]: https://www.postgresql.org/docs/current/runtime-config.html
+    "PostgreSQL Docs: Server Configuration"
 
 ## [v0.1.3] — 2026-10-18
 

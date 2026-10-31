@@ -68,17 +68,28 @@ jobs:
 
 This action takes the following parameters:
 
-| Key        | Type    | Default   | Description                                            |
-| ---------- | ------- | --------- |------------------------------------------------------- |
-| `version`  | string  | ""        | PostgreSQL major version to install                    |
-| `port`     | integer | 55432     | Port on which PostgreSQL should listen for connections |
-| `packages` | string  | ""        | List of additional OS-specific packages to install     |
-| `start`    | boolean | true      | Start the PostgreSQL server after installing           |
-| `encoding` | string  | ""        | The encoding to use for databases in the cluster       |
-| `locale`   | string  | ""        | The locale to use for databases in the cluster         |
-| `owner`    | string  | ""        | The user to own the cluster; defaults to current user  |
+| Key        | Type    | Default  | Description                                            |
+| ---------- | ------- | -------- |------------------------------------------------------- |
+| `version`  | string  | ""       | PostgreSQL major version to install                    |
+| `port`     | integer | 55432    | Port on which PostgreSQL should listen for connections |
+| `packages` | string  | ""       | List of additional OS-specific packages to install     |
+| `start`    | boolean | true     | Start the PostgreSQL server after installing           |
+| `encoding` | string  | ""       | The encoding to use for databases in the cluster       |
+| `locale`   | string  | ""       | The locale to use for databases in the cluster         |
+| `owner`    | string  | ""       | The user to own the cluster; defaults to current user  |
+| `config`   | string  | ""       | [Server configuration] to append to `postgresql.conf`  |
 
-The `locale` and `encoding` inputs have no effect if `start` is false.
+The `locale`, `encoding`, `owner`, and `config` inputs have no effect if
+`start` is false.
+
+Use block scalar syntax for multi-line [server configuration] in `config`,
+e.g.:
+
+```yaml
+config: |
+  timezone = 'Asia/Tokyo'
+  statement_timeout = 5400
+```
 
 For the `packages` input, use package names specific to the OS packaging
 system:
@@ -93,13 +104,13 @@ On completion, this action sets the following environment variables:
 
 | Variable    | Value        | Description                                     |
 | ----------- | ------------ | ----------------------------------------------- |
-| `PGUSER`    | "postgres"   | The name of the PostgreSQL super user           |
+| `PGUSER`    | "$owner"     | The name of the PostgreSQL super user           |
 | `PGPORT`    | `input.port` | The port on which the PostgreSQL server listens |
 | `PG_CONFIG` | varies       | The path `pg_config`, used to build extensions  |
 
 ## Path
 
-On completion, this action adds the path to the PostgreSQLl executables to the
+On completion, this action adds the path to the PostgreSQL executables to the
 `PATH` environment variable, so they can be called without needing to know the
 full, often version-specific path.
 
@@ -132,3 +143,5 @@ full, often version-specific path.
     "petere/pguint@bcc3335 Convert CI from Cirrus to GitHub Actions"
   [ikalnytskyi/action-setup-postgres]: https://github.com/ikalnytskyi/action-setup-postgres/
     "Setup a PostgreSQL for Linux, macOS and Windows runner machines"
+  [Server configuration]: https://www.postgresql.org/docs/current/runtime-config.html
+    "PostgreSQL Docs: Server Configuration"
