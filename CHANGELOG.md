@@ -7,6 +7,27 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.3.0] — 2026-10-31
+
+The theme of this release is *Defaults.*
+
+### ⚡ Improvements
+
+*   Added a test for and documented using `pgxn/postgres-action` twice: once
+    with `start: false`, performing another task such as compiling an
+    extension, then starting Postgres. the example includes the compiled
+    extension in `shared_preload_libraries` when starting.
+*   Added the `PGDATA` environment variable to exports.
+
+### 🪲 Bug Fixes
+
+*   Reverted the default superuser name to "postgres", as it's typically
+    expected by various tooling and is the name of the default database.
+*   Removed the `owner` input; it was superfluous. The current user (`runner`)
+    now always owns the cluster in `$PGDATA`.
+
+  [v0.3.0]: https://github.com/pgxn/postgres-action/compare/v0.2.0...v0.3.0
+
 ## [v0.2.0] — 2026-10-31
 
 The theme of this release is *Ease of use.*

@@ -42,7 +42,6 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v7
       - name: Start Postgres ${{ matrix.pg.version }}
-        id: pg
         uses: ./
         with:
           version: ${{ matrix.pg.version }}
@@ -117,6 +116,10 @@ jobs:
           psql -c "SELECT current_setting('statement_timeout')" | grep 5400ms
           psql -c "SELECT datcollate FROM pg_database WHERE datname = current_database()" | grep '${{ matrix.opt.locale }}'
           psql -c "SELECT current_user" | grep postgres
+          echo "$PG_CONFIG" | grep .
+          echo "$PGDATA" | grep .
+          echo "$PGUSER" | grep postgres
+          echo "$PGPORT" | grep ${{ matrix.opt.port }}
           pgxn --version # Always installed
           hugo version # Added by packages
 
@@ -124,18 +127,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        pg: [18]
         os:
           - { img: 🍎, name: macOS  }
           - { img: 🐧, name: Ubuntu }
           - { img: 🪟, name: Windows  }
-    name: ${{ matrix.os.img }} ${{ matrix.os.name }} no-start
+    name: ${{ matrix.os.img }} ${{ matrix.os.name }} 🐘 v${{ matrix.pg }} no-start
     runs-on: ${{ matrix.os.name }}-latest
     steps:
       - name: Check out the repo
         uses: actions/checkout@v7
-      - name: Start Postgres
-        id: pg
+      - name: Install Postgres ${{ matrix.pg }}
         uses: ./
-        with: { version: 18, start: false }
+        with: { version: "${{ matrix.pg }}", start: false }
       - name: Check Not Running
         run: if psql -c 'SELECT version()'; then printf 'Server running but should not\n'; exit 1; fi
+      - name: Start Postgres ${{ matrix.pg }}
+        uses: ./
+        with: { version: "${{ matrix.pg }}" }
+      - name: Check Running
+        run: psql -c "SELECT true"

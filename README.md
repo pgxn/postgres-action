@@ -76,11 +76,10 @@ This action takes the following parameters:
 | `start`    | boolean | true     | Start the PostgreSQL server after installing           |
 | `encoding` | string  | ""       | The encoding to use for databases in the cluster       |
 | `locale`   | string  | ""       | The locale to use for databases in the cluster         |
-| `owner`    | string  | ""       | The user to own the cluster; defaults to current user  |
 | `config`   | string  | ""       | [Server configuration] to append to `postgresql.conf`  |
 
-The `locale`, `encoding`, `owner`, and `config` inputs have no effect if
-`start` is false.
+The `locale`, `encoding`, and `config` inputs have no effect if `start` is
+false.
 
 Use block scalar syntax for multi-line [server configuration] in `config`,
 e.g.:
@@ -98,15 +97,47 @@ system:
 *   macOS: [Homebrew Formulae]
 *   Windows: [Chocolatey Packages]
 
+Setting `start` can be handy to eliminate the overhead of initializing a
+cluster and starting Postgres if you don't need a running server. It can also
+be useful to defer startup until some other step has been taken; simply use
+the action a second time. For example, to build and install an extension, then
+add it to `shared_preload_libraries` when starting Postgres:
+
+``` yaml
+jobs:
+  test:
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+      - name: Install Postgres ${{ matrix.pg.version }}
+        uses: pgxn/postgres-action@v0
+        with:
+          version: ${{ matrix.pg.version }}
+          start: false
+      - name: Build
+        run:  make
+      - name: Install
+        run:  sudo make install
+      - name: Start Postgres ${{ matrix.pg.version }}
+        uses: pgxn/postgres-action@v0
+        with:
+          version: ${{ matrix.pg.version }}
+          config: shared_preload_libraries = 'my_extension'
+      - name: Test
+        id:   test
+        run:  make installcheck
+```
+
 ## Environment Variables
 
 On completion, this action sets the following environment variables:
 
-| Variable    | Value        | Description                                     |
-| ----------- | ------------ | ----------------------------------------------- |
-| `PGUSER`    | "$owner"     | The name of the PostgreSQL super user           |
-| `PGPORT`    | `input.port` | The port on which the PostgreSQL server listens |
-| `PG_CONFIG` | varies       | The path `pg_config`, used to build extensions  |
+| Variable    | Value        | Description                                        |
+| ----------- | ------------ | -------------------------------------------------- |
+| `PGUSER`    | "postgres"   | The name of the PostgreSQL super user              |
+| `PGPORT`    | `input.port` | The port on which the PostgreSQL server listens    |
+| `PG_CONFIG` | varies       | The path to `pg_config`, used to build extensions  |
+| `PGDATA`    | varies       | The path to the cluster data directory             |
 
 ## Path
 
