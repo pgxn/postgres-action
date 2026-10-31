@@ -7,8 +7,8 @@ automated testing of PGXN extensions against multiple versions of PostgreSQL.
 It currently supports:
 
 *   Ubuntu Runners with PGDG-installed PostgreSQL 8.2-19
-*   macOS Runners with Homebrew-installed PostreSQL 14-18
-*   Windows Runners with Chocolatey-installed PostreSQL 10-18[^win-pgxs]
+*   macOS Runners with Homebrew-installed PostgreSQL 14-18
+*   Windows Runners with Chocolatey-installed PostgreSQL 10-18[^win-pgxs]
 
 In addition, each provides the [pgxn client] to simplify installing additional
 extension from [PGXN]. The Windows images also adds `sudo` to minimize
@@ -68,14 +68,15 @@ jobs:
 
 This action takes the following parameters:
 
-| Key                | Type    | Default   | Description                                          |
-| ------------------ | ------- | --------- |----------------------------------------------------- |
-| `version`          | string  | ""        | PostgreSQL major version to install                  |
-| `port`             | integer | 55432     | Port on which PostreSQL should listen for cnnections |
-| `packages`         | string  | ""        | List of additional OS-specific packages to install   |
-| `start`            | boolean | true      | Start the PostgreSQL server after installing         |
-| `encoding`         | string  | ""        | The encoding to use for databases in the cluster     |
-| `locale`           | string  | ""        | The locale to use for databases in the cluster       |
+| Key        | Type    | Default   | Description                                            |
+| ---------- | ------- | --------- |------------------------------------------------------- |
+| `version`  | string  | ""        | PostgreSQL major version to install                    |
+| `port`     | integer | 55432     | Port on which PostgreSQL should listen for connections |
+| `packages` | string  | ""        | List of additional OS-specific packages to install     |
+| `start`    | boolean | true      | Start the PostgreSQL server after installing           |
+| `encoding` | string  | ""        | The encoding to use for databases in the cluster       |
+| `locale`   | string  | ""        | The locale to use for databases in the cluster         |
+| `owner`    | string  | ""        | The user to own the cluster; defaults to current user  |
 
 The `locale` and `encoding` inputs have no effect if `start` is false.
 
@@ -99,7 +100,7 @@ On completion, this action sets the following environment variables:
 ## Path
 
 On completion, this action adds the path to the PostgreSQLl executables to the
-`PATH` environment varaible, so they can be called without needing to know the
+`PATH` environment variable, so they can be called without needing to know the
 full, often version-specific path.
 
 ## Prior Art/Inspirations

@@ -7,6 +7,22 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.2.0] — Unreleased
+
+### ⚡ Improvements
+
+*   Now creates a cluster owned by the system current user rather than
+    "postgres".
+*   Added the `owner` input; set to "postgres" to restore cluster ownership to
+    the "postgres" system user.
+
+### 📚 Documentation
+
+*   Fixed typos in the [README].
+
+  [v0.2.0]: https://github.com/pgxn/postgres-action/compare/v0.1.3...v0.2.0
+  [README]: README.md
+
 ## [v0.1.3] — 2026-10-18
 
 The theme of this release is *Welcome to the Matrix.*
