@@ -45,17 +45,17 @@ runs:
           sudo sed -i 's/#create_main_cluster = true/create_main_cluster = false/' /etc/postgresql-common/createcluster.conf
           sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -i -v ${{ inputs.version }}
           PG_BIN=/usr/lib/postgresql/${{ inputs.version }}/bin
-          export PGDATA=/var/lib/postgresql/test
+          export PGDATA="$RUNNER_TEMP/pgdata${{ inputs.version }}"
           if [ "${{ inputs.start }}" == 'true' ]; then
             # For some reason, the `--user` option causes `pg_createcluster`
             # to freeze after `initdb`. So we have to do it manually.
-            sudo chown -R "$(whoami)" /var/lib/postgresql /var/run/postgresql
+            sudo chown -R "$(whoami)" /var/run/postgresql
             "$PG_BIN/initdb" -U postgres ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
-            printf '\n%s\nport = ${{ inputs.port }}\n' "${{ inputs.config }}" >> "$PGDATA/postgresql.conf"
-            "$PG_BIN/pg_ctl" start
+            printf "\n%s\nport = ${{ inputs.port }}\n" "${{ inputs.config }}" >> "$PGDATA/postgresql.conf"
+            "$PG_BIN/pg_ctl" -l "$PGDATA/server.log" start
           fi
           printf '%s\n' "$PG_BIN" >> "$GITHUB_PATH"
-          printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/pg_config\nPGDATA=%s\n' "$PG_BIN" "$PGDATA" >> "$GITHUB_ENV"
+          printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/pg_config\nPGDATA=%s\nPGLOGFILE=%s/server.log\n' "$PG_BIN" "$PGDATA" "$PGDATA" >> "$GITHUB_ENV"
           ;;
 
         macOS)
@@ -71,9 +71,9 @@ runs:
           if [ "${{ inputs.start }}" == 'true' ]; then
             initdb -U postgres ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
             printf '\n%s\nport = ${{ inputs.port }}\n' "${{ inputs.config }}" >> "$PGDATA/postgresql.conf"
-            pg_ctl start
+            pg_ctl -l "$PGDATA/server.log" start
           fi
-          printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/bin/pg_config\nPGDATA=%s\n' "$(brew --prefix)" "$PGDATA" >> "$GITHUB_ENV"
+          printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/bin/pg_config\nPGDATA=%s\nPGLOGFILE=%s/server.log\n' "$(brew --prefix)" "$PGDATA" "$PGDATA" >> "$GITHUB_ENV"
           ;;
 
         Windows)
@@ -104,11 +104,11 @@ runs:
           if [ "${{ inputs.start }}" == 'true' ]; then
             "$PG_BIN/initdb.exe" -U postgres ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
             printf '\n%s\nport = ${{ inputs.port }}\n' "${{ inputs.config }}" >> "$PGDATA/postgresql.conf"
-            "$PG_BIN/pg_ctl.exe" start
+            "$PG_BIN/pg_ctl.exe" -l "$PGDATA/server.log" start
           fi
 
           printf '%s\n' "$PG_BIN" >> $GITHUB_PATH
-          printf 'PGBIN=\nPGPASSWORD=\nPGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/pg_config.exe\nPGDATA=%s\n' "$PG_BIN" "$PGDATA" >> "$GITHUB_ENV"
+          printf 'PGBIN=\nPGPASSWORD=\nPGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/pg_config.exe\nPGDATA=%s\nPGLOGFILE=%s/server.log\n' "$PG_BIN" "$PGDATA" "$PGDATA" >> "$GITHUB_ENV"
           ;;
 
         *)
