@@ -132,13 +132,13 @@ jobs:
 
 On completion, this action sets the following environment variables:
 
-| Variable    | Value                         | Description                                        |
-| ----------- | ----------------------------- | -------------------------------------------------- |
-| `PGUSER`    | "postgres"                    | The name of the PostgreSQL super user              |
-| `PGPORT`    | `input.port`                  | The port on which the PostgreSQL server listens    |
-| `PG_CONFIG` | varies                        | The path to `pg_config`, used to build extensions  |
-| `PGDATA`    | `$RUNNER_TEMP/pgdata$version` | The path to the cluster data directory             |
-| `PGLOGFILE` | `$PGDATA/server.log`          | The path to the PostgreSQL server log              |
+| Variable    | Value                                   | Description                                        |
+| ----------- | --------------------------------------- | -------------------------------------------------- |
+| `PGUSER`    | "postgres"                              | The name of the PostgreSQL super user              |
+| `PGPORT`    | `${{ input.port }}`                     | The port on which the PostgreSQL server listens    |
+| `PG_CONFIG` | varies                                  | The path to `pg_config`, used to build extensions  |
+| `PGDATA`    | `$RUNNER_TEMP/pgdata${{input.version}}` | The path to the cluster data directory             |
+| `PGLOGFILE` | `$PGDATA/server.log`                    | The path to the PostgreSQL server log              |
 
 ## Path
 
