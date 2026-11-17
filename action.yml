@@ -37,6 +37,8 @@ runs:
       shell: bash
       run: |
         set -e
+        # pg_ctl needs PGUSER prior to 9.1, else it uses current user.
+        export PGDATA="$RUNNER_TEMP/pgdata${{ inputs.version }}" PGUSER=postgres
         case "$RUNNER_OS" in
         Linux)
           sudo apt-get update
@@ -45,14 +47,13 @@ runs:
           sudo sed -i 's/#create_main_cluster = true/create_main_cluster = false/' /etc/postgresql-common/createcluster.conf
           sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -i -v ${{ inputs.version }}
           PG_BIN=/usr/lib/postgresql/${{ inputs.version }}/bin
-          export PGDATA="$RUNNER_TEMP/pgdata${{ inputs.version }}"
           if [ "${{ inputs.start }}" == 'true' ]; then
             # For some reason, the `--user` option causes `pg_createcluster`
             # to freeze after `initdb`. So we have to do it manually.
             sudo chown -R "$(whoami)" /var/run/postgresql
-            "$PG_BIN/initdb" -U postgres ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
-            printf "\n%s\nport = ${{ inputs.port }}\n" "${{ inputs.config }}" >> "$PGDATA/postgresql.conf"
-            "$PG_BIN/pg_ctl" -l "$PGDATA/server.log" start
+            "$PG_BIN/initdb" -U postgres -A trust ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
+            printf '\n%s\nport = ${{ inputs.port }}\n' "${{ inputs.config }}" >> "$PGDATA/postgresql.conf"
+            "$PG_BIN/pg_ctl" -w -l "$PGDATA/server.log" start || { cat "$PGDATA/server.log" && false; }
           fi
           printf '%s\n' "$PG_BIN" >> "$GITHUB_PATH"
           printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/pg_config\nPGDATA=%s\nPGLOGFILE=%s/server.log\n' "$PG_BIN" "$PGDATA" "$PGDATA" >> "$GITHUB_ENV"
@@ -67,11 +68,10 @@ runs:
           brew install -y --quiet "postgresql@${{ inputs.version }}" pgxnclient ${{ inputs.packages }}
           brew unlink --quiet "postgresql@${{ inputs.version }}"
           brew link --quiet --overwrite "postgresql@${{ inputs.version }}"
-          export PGDATA="$RUNNER_TEMP/pgdata${{ inputs.version }}"
           if [ "${{ inputs.start }}" == 'true' ]; then
-            initdb -U postgres ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
+            initdb -U postgres -A trust ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
             printf '\n%s\nport = ${{ inputs.port }}\n' "${{ inputs.config }}" >> "$PGDATA/postgresql.conf"
-            pg_ctl -l "$PGDATA/server.log" start
+            pg_ctl -w -l "$PGDATA/server.log" start || { cat "$PGDATA/server.log" && false; }
           fi
           printf 'PGPORT=${{ inputs.port }}\nPGUSER=postgres\nPG_CONFIG=%s/bin/pg_config\nPGDATA=%s\nPGLOGFILE=%s/server.log\n' "$(brew --prefix)" "$PGDATA" "$PGDATA" >> "$GITHUB_ENV"
           ;;
@@ -100,11 +100,10 @@ runs:
           pip install pgxnclient
 
           PG_BIN="$PROGRAMFILES/PostgreSQL/${{ inputs.version }}/bin"
-          export PGDATA="$RUNNER_TEMP/pgdata${{ inputs.version }}"
           if [ "${{ inputs.start }}" == 'true' ]; then
-            "$PG_BIN/initdb.exe" -U postgres ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
+            "$PG_BIN/initdb.exe" -U postgres -A trust ${{ inputs.locale && format('--locale {0}', inputs.locale) }} ${{ inputs.encoding && format('--encoding {0}', inputs.encoding) }}
             printf '\n%s\nport = ${{ inputs.port }}\n' "${{ inputs.config }}" >> "$PGDATA/postgresql.conf"
-            "$PG_BIN/pg_ctl.exe" -l "$PGDATA/server.log" start
+            "$PG_BIN/pg_ctl.exe" -w -l "$PGDATA/server.log" start || { cat "$PGDATA/server.log" && false; }
           fi
 
           printf '%s\n' "$PG_BIN" >> $GITHUB_PATH

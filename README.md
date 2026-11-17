@@ -70,12 +70,12 @@ This action takes the following parameters:
 
 | Key        | Type    | Default  | Description                                            |
 | ---------- | ------- | -------- |------------------------------------------------------- |
-| `version`  | string  | ""       | PostgreSQL major version to install                    |
+| `version`  | string  | ""       | Required: PostgreSQL major version to install          |
 | `port`     | integer | 55432    | Port on which PostgreSQL should listen for connections |
 | `packages` | string  | ""       | List of additional OS-specific packages to install     |
 | `start`    | boolean | true     | Start the PostgreSQL server after installing           |
 | `encoding` | string  | ""       | The encoding to use for databases in the cluster       |
-| `locale`   | string  | ""       | The locale to use for databases in the cluster         |
+| `locale`   | string  | ""       | The lo  cale to use for databases in the cluster         |
 | `config`   | string  | ""       | [Server configuration] to append to `postgresql.conf`  |
 
 The `locale`, `encoding`, and `config` inputs have no effect if `start` is
@@ -138,7 +138,7 @@ On completion, this action sets the following environment variables:
 | `PGPORT`    | `input.port`                  | The port on which the PostgreSQL server listens    |
 | `PG_CONFIG` | varies                        | The path to `pg_config`, used to build extensions  |
 | `PGDATA`    | `$RUNNER_TEMP/pgdata$version` | The path to the cluster data directory             |
-| `PGLOGFILE` | `$PGDATA/server.log`          | The path to the server log                         |
+| `PGLOGFILE` | `$PGDATA/server.log`          | The path to the PostgreSQL server log              |
 
 ## Path
 

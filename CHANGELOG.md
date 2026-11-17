@@ -7,6 +7,25 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.3.1] — 2026-11-17
+
+### ⚡ Improvements
+
+*   Added a PostgreSQL server log file and added the `PGLOGFILE` environment
+    variable to exports.
+*   Added `-A trust` to the `initdb` calls to suppress the warning about
+    defaulting to trusted access.
+*   Moved the `PGDATA` path on Linux to the same location as on macOS and
+    Windows: `$RUNNER_TEMP/pgdata$version`.
+*   Added the `-w` option to the `pg_ctl` calls and a conditional to `cat` the
+    lot file if Postgres fails to start.
+
+### 📚 Documentation
+
+*   Marked the `version` variable as required in the [README].
+
+  [v0.3.1]: https://github.com/pgxn/postgres-action/compare/v0.3.0...v0.3.1
+
 ## [v0.3.0] — 2026-10-31
 
 The theme of this release is *Defaults.*
