@@ -45,6 +45,8 @@ runs:
           sudo apt-get -y purge postgresql-client-common
           sudo apt-get install -y postgresql-common ca-certificates build-essential pgxnclient ${{ inputs.packages }}
           sudo sed -i 's/#create_main_cluster = true/create_main_cluster = false/' /etc/postgresql-common/createcluster.conf
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y postgresql-common
           sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -i -v ${{ inputs.version }}
           PG_BIN=/usr/lib/postgresql/${{ inputs.version }}/bin
           if [ "${{ inputs.start }}" == 'true' ]; then

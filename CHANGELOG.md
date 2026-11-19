@@ -7,6 +7,20 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.3.2] — 2026-11-19
+
+### 🪲 Bug Fixes
+
+*   Fixed installing Postgres 19 so that it no longer fails with the error
+    `'resolute-pgdg-snapshot' is invalid for APT::Default-Release` by first
+    running `apt.postgresql.org.sh -y`, then re-running
+    `apt-get install -y postgresql-common`, then finally installing the
+    specified version with `apt.postgresql.org.sh -i -v $version`. Thanks
+    to PGDG Apt maintainer Christoph Berg for this workaround.
+
+  [v0.3.2]: https://github.com/pgxn/postgres-action/compare/v0.3.1...v0.3.2
+
+
 ## [v0.3.1] — 2026-11-17
 
 ### ⚡ Improvements
