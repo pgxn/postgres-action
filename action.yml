@@ -67,6 +67,7 @@ runs:
           export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
           export HOMEBREW_NO_INSTALL_CLEANUP=1
           export HOMEBREW_NO_INSTALL_UPGRADE=1
+          brew update -q
           brew install -y --quiet "postgresql@${{ inputs.version }}" pgxnclient ${{ inputs.packages }}
           brew unlink --quiet "postgresql@${{ inputs.version }}"
           brew link --quiet --overwrite "postgresql@${{ inputs.version }}"
@@ -79,6 +80,7 @@ runs:
           ;;
 
         Windows)
+          choco upgrade chocolatey
           choco install sudo ${{ inputs.packages }}
           # Chocolatey downloads the PostgreSQL installer from
           # get.enterprisedb.com, which intermittently responds with HTTP 403

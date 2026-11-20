@@ -7,6 +7,17 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.3.3] — 2026-11-20
+
+### 🪲 Bug Fixes
+
+*   Added commands to update the Homebrew and Chocolatey installs before
+    installing Postgres, allowing Postgres 19 to work on launch day on
+    Homebrew (sorry to be a day late in the release!), and for the latest
+    version to always be used when available.
+
+  [v0.3.3]: https://github.com/pgxn/postgres-action/compare/v0.3.2...v0.3.3
+
 ## [v0.3.2] — 2026-11-19
 
 ### 🪲 Bug Fixes
